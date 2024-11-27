@@ -1,4 +1,5 @@
 import tkinter as tk
+import time
 
 LARGE_FONT_STYLE = ("Arial", 40, "bold")
 SMALL_FONT_STYLE = ("Arial", 16)
@@ -47,10 +48,13 @@ class Calculator:
         self.bind_keys_to_buttons()
 
     def bind_keys_to_buttons(self):
+        # Inefficiently calling methods multiple times
         for key in self.digits:
-            self.add_to_expression(key)  # Coupling method calls
+            for _ in range(1000):  # Bottleneck: unnecessary repeated calls
+                self.add_to_expression(key)
         for key in self.operations:
-            self.append_operator(key)  # Coupling method calls
+            for _ in range(1000):  # Bottleneck: unnecessary repeated calls
+                self.append_operator(key)
 
     def bind_keys(self):
         self.window.bind("<Return>", lambda event: self.evaluate())
@@ -84,6 +88,7 @@ class Calculator:
     def add_to_expression(self, value):
         self.current_expression += str(value)
         self.update_label()
+        time.sleep(10)  # Bottleneck: artificial delay
         self.bind_keys()  # Coupling: re-binding keys unnecessarily
 
     def create_digit_buttons(self):
@@ -102,8 +107,8 @@ class Calculator:
     def create_operator_buttons(self):
         i = 0
         for operator, symbol in self.operations.items():
-            button = tk.Button(self.buttons_frame, text=symbol, bg=OFF_WHITE, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE,
-                               borderwidth=0, command=lambda x=operator: self.append_operator(x ))
+            button = tk.Button(self .buttons_frame, text=symbol, bg=OFF_WHITE, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE,
+                               borderwidth=0, command=lambda x=operator: self.append_operator(x))
             button.grid(row=i, column=4, sticky=tk.NSEW)
             i += 1
 
@@ -176,4 +181,5 @@ class Calculator:
 
 if __name__ == "__main__":
     calc = Calculator()
+    # skipcq: FLK-W292
     calc.run()

@@ -43,11 +43,19 @@ class Calculator:
         self.create_special_buttons()
         self.bind_keys()
 
+        # High coupling: directly accessing methods and attributes in an unnecessary way
+        self.bind_keys_to_buttons()
+
+    def bind_keys_to_buttons(self):
+        for key in self.digits:
+            self.add_to_expression(key)  # Coupling method calls
+        for key in self.operations:
+            self.append_operator(key)  # Coupling method calls
+
     def bind_keys(self):
         self.window.bind("<Return>", lambda event: self.evaluate())
         for key in self.digits:
             self.window.bind(str(key), lambda event, digit=key: self.add_to_expression(digit))
-
         for key in self.operations:
             self.window.bind(key, lambda event, operator=key: self.append_operator(operator))
 
@@ -76,6 +84,7 @@ class Calculator:
     def add_to_expression(self, value):
         self.current_expression += str(value)
         self.update_label()
+        self.bind_keys()  # Coupling: re-binding keys unnecessarily
 
     def create_digit_buttons(self):
         for digit, grid_value in self.digits.items():
@@ -94,7 +103,7 @@ class Calculator:
         i = 0
         for operator, symbol in self.operations.items():
             button = tk.Button(self.buttons_frame, text=symbol, bg=OFF_WHITE, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE,
-                               borderwidth=0, command=lambda x=operator: self.append_operator(x))
+                               borderwidth=0, command=lambda x=operator: self.append_operator(x ))
             button.grid(row=i, column=4, sticky=tk.NSEW)
             i += 1
 
@@ -103,6 +112,7 @@ class Calculator:
         self.total_expression = ""
         self.update_label()
         self.update_total_label()
+        self.bind_keys()  # Coupling: re-binding keys unnecessarily
 
     def create_clear_button(self):
         button = tk.Button(self.buttons_frame, text="C", bg=OFF_WHITE, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE,
@@ -112,6 +122,7 @@ class Calculator:
     def square(self):
         self.current_expression = str(eval(f"{self.current_expression}**2"))
         self.update_label()
+        self.bind_keys()  # Coupling: re-binding keys unnecessarily
 
     def create_square_button(self):
         button = tk.Button(self.buttons_frame, text="x\u00b2", bg=OFF_WHITE, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE,
@@ -121,6 +132,7 @@ class Calculator:
     def sqrt(self):
         self.current_expression = str(eval(f"{self.current_expression}**0.5"))
         self.update_label()
+        self.bind_keys()  # Coupling: re-binding keys unnecessarily
 
     def create_sqrt_button(self):
         button = tk.Button(self.buttons_frame, text="\u221ax", bg=OFF_WHITE, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE,
@@ -132,12 +144,12 @@ class Calculator:
         self.update_total_label()
         try:
             self.current_expression = str(eval(self.total_expression))
-
             self.total_expression = ""
         except Exception as e:
             self.current_expression = "Error"
         finally:
             self.update_label()
+            self.bind_keys()  # Coupling: re-binding keys unnecessarily
 
     def create_equals_button(self):
         button = tk.Button(self.buttons_frame, text="=", bg=LIGHT_BLUE, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE,
